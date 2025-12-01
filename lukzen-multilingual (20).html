@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>LukZen | Cloud & Platform Architects</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0a0a0a; --ink-light: #1a1a1a; --ink-muted: #4a4a4a;
+            --stone: #737373; --silver: #a3a3a3; --mist: #e5e5e5;
+            --cloud: #f5f5f5; --white: #ffffff;
+            --accent: #2563eb; --accent-light: #3b82f6;
+            --aws: #ff9900; --azure: #0078d4; --gcp: #4285f4;
+            --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+            --font-serif: 'Instrument Serif', Georgia, serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font); background: var(--white); color: var(--ink); font-size: 16px; line-height: 1.6; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+
+        /* Logo */
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; flex-shrink: 0; }
+        .logo-mark { width: 36px; height: 36px; }
+        .logo-text { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 400; letter-spacing: -0.02em; }
+
+        /* Navigation */
+        nav { 
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
+            padding: 12px 16px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); 
+            border-bottom: 1px solid var(--mist);
+        }
+        
+        .nav-right { display: flex; align-items: center; gap: 8px; }
+        
+        /* Hamburger button - mobile only */
+        .hamburger {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            width: 44px; height: 44px; background: none; border: none; cursor: pointer;
+            gap: 5px; padding: 8px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .hamburger span {
+            display: block; width: 20px; height: 2px; background: var(--ink);
+            border-radius: 2px; transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+        
+        /* Hide nav links on mobile - show only on tablet+ */
+        .nav-links { display: none; }
+        .nav-links a { color: var(--stone); text-decoration: none; font-size: 0.85rem; font-weight: 500; white-space: nowrap; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--ink); }
+        
+        /* Mobile menu overlay */
+        .mobile-menu {
+            display: none; position: fixed; top: 61px; left: 0; right: 0; bottom: 0;
+            background: var(--white); z-index: 999;
+            flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .mobile-menu.active { display: flex; opacity: 1; }
+        .mobile-menu a {
+            font-size: 1.5rem; font-weight: 600; color: var(--ink); text-decoration: none;
+            transition: color 0.2s;
+            padding: 12px 24px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .mobile-menu a:hover, .mobile-menu a:active { color: var(--accent); }
+        
+        .lang-switcher { display: flex; gap: 2px; background: var(--cloud); padding: 3px; border-radius: 6px; }
+        .lang-btn { 
+            padding: 4px 6px; border: none; background: transparent; 
+            font-family: var(--font); font-size: 0.6rem; font-weight: 600; 
+            color: var(--stone); cursor: pointer; border-radius: 4px;
+            text-transform: uppercase; letter-spacing: 0.03em;
+            transition: all 0.2s;
+        }
+        .lang-btn.active { background: var(--white); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
+        .nav-cta { 
+            background: var(--ink); color: var(--white); 
+            padding: 8px 14px; border-radius: 100px; 
+            font-size: 0.7rem; font-weight: 600; text-decoration: none;
+            white-space: nowrap;
+        }
+
+        /* HERO */
+        .hero { 
+            min-height: 100vh; min-height: 100svh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            text-align: center; padding: 80px 16px 40px; 
+            position: relative; overflow: hidden; 
+        }
+        .hero::before { 
+            content: ''; position: absolute; width: 400px; height: 400px; 
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%); 
+            top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; 
+        }
+        
+        .hero-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 12px; }
+        .hero h1 { font-size: 1.75rem; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 14px; max-width: 100%; }
+        .hero h1 span { color: var(--accent); }
+        .hero-subtitle { font-size: 0.9rem; color: var(--stone); max-width: 100%; margin-bottom: 24px; line-height: 1.5; }
+        .hero-cta { 
+            display: inline-flex; align-items: center; gap: 8px; 
+            background: var(--ink); color: var(--white); 
+            padding: 14px 24px; border-radius: 100px; 
+            font-weight: 600; font-size: 0.85rem; text-decoration: none; 
+            margin-bottom: 36px; 
+        }
+        .hero-cta svg { width: 14px; height: 14px; }
+
+        .cloud-logos { display: flex; align-items: center; gap: 20px; opacity: 0.7; flex-wrap: wrap; justify-content: center; }
+        .cloud-logos span { display: none; }
+        .cloud-logo { height: 18px; opacity: 0.8; }
+
+        /* SECTIONS COMMON */
+        .section-header { text-align: center; margin-bottom: 28px; }
+        .section-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent-light); margin-bottom: 8px; }
+        .section-title { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
+
+        /* HOW WE HELP */
+        .how-we-help { padding: 50px 16px; background: var(--white); }
+        .how-we-help .section-label { color: var(--accent); }
+        .how-we-help .section-title { color: var(--ink); }
+        
+        .help-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .help-card {
+            background: var(--cloud);
+            border-radius: 12px;
+            padding: 20px 16px;
+            text-align: center;
+        }
+        .help-icon {
+            width: 44px; height: 44px;
+            background: var(--white);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .help-icon svg { width: 22px; height: 22px; color: var(--accent); }
+        .help-card h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: var(--ink); }
+        .help-card p { font-size: 0.75rem; color: var(--stone); line-height: 1.5; }
+
+        /* WHAT WE DO - Services */
+        .what-we-do { padding: 50px 16px; background: var(--ink); color: var(--white); }
+        .what-we-do .section-title { color: var(--white); }
+        
+        .services-simple { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 12px; 
+            max-width: 400px; 
+            margin: 0 auto; 
+        }
+        .service-box { 
+            background: var(--ink-light); border-radius: 12px; 
+            padding: 20px 16px; text-align: center; 
+        }
+        .service-icon { 
+            width: 44px; height: 44px; 
+            background: rgba(37, 99, 235, 0.15); border-radius: 10px; 
+            display: flex; align-items: center; justify-content: center; 
+            margin: 0 auto 12px; 
+        }
+        .service-icon svg { width: 22px; height: 22px; color: var(--accent-light); }
+        .service-box h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
+        .service-box p { font-size: 0.75rem; color: var(--silver); line-height: 1.5; }
+
+        /* PROJECTS */
+        .projects { padding: 50px 0; background: var(--cloud); overflow: hidden; }
+        .projects .section-header { padding: 0 16px; text-align: left; }
+        .projects .section-title { color: var(--ink); }
+        .projects-track { display: flex; gap: 12px; animation: scroll-projects 60s linear infinite; width: max-content; padding-left: 16px; }
+        .projects-track:hover { animation-play-state: paused; }
+        @keyframes scroll-projects { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        
+        .project-card { flex-shrink: 0; width: 260px; background: var(--white); border-radius: 12px; padding: 18px; }
+        .project-industry { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px; }
+        .project-card h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.01em; }
+        .project-card > p { font-size: 0.75rem; color: var(--stone); line-height: 1.45; margin-bottom: 12px; }
+        .project-tech { display: flex; flex-wrap: wrap; gap: 4px; }
+        .project-tech span { font-size: 0.5rem; font-weight: 600; padding: 3px 6px; background: var(--ink); color: var(--white); border-radius: 3px; }
+
+        /* TECH STACK */
+        .tech-stack { padding: 40px 16px; background: var(--white); text-align: center; }
+        .tech-stack .section-label { color: var(--accent); }
+        .tech-stack .section-title { color: var(--ink); margin-bottom: 24px; }
+        .tech-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+        .tech-pill { padding: 6px 12px; background: var(--cloud); border-radius: 100px; font-size: 0.7rem; font-weight: 500; color: var(--stone); }
+        .tech-pill.highlight { background: var(--ink); color: var(--white); }
+
+        /* PROCESS */
+        .process { padding: 50px 16px; background: var(--cloud); }
+        .process .section-title { color: var(--ink); }
+        
+        .process-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            max-width: 400px; 
+            margin: 0 auto; 
+        }
+        .process-item { 
+            text-align: center; 
+            padding: 18px 12px; 
+            background: var(--white); 
+            border-radius: 12px; 
+        }
+        .process-num { 
+            width: 40px; height: 40px; 
+            background: var(--ink); border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 0.95rem; font-weight: 700; color: var(--white); 
+            margin: 0 auto 10px; 
+        }
+        .process-item h3 { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+        .process-item p { font-size: 0.7rem; color: var(--stone); line-height: 1.4; }
+
+        /* CTA */
+        .cta { padding: 50px 16px; background: var(--white); text-align: center; }
+        .cta h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px; }
+        .cta > p { font-size: 0.85rem; color: var(--stone); margin-bottom: 24px; }
+        .cta-btn { 
+            display: inline-flex; align-items: center; gap: 8px; 
+            background: var(--ink); color: var(--white); 
+            padding: 14px 28px; border-radius: 100px; 
+            font-size: 0.85rem; font-weight: 600; text-decoration: none; 
+        }
+        .cta-contacts { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 28px; }
+        .cta-contact { color: var(--stone); text-decoration: none; font-size: 0.8rem; }
+
+        /* Footer */
+        footer { 
+            padding: 16px; background: var(--ink); color: var(--silver); 
+            display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; 
+        }
+        footer .logo .logo-text { color: var(--white); }
+        footer p { font-size: 0.65rem; }
+
+        /* Animations */
+        .fade-up { opacity: 1; transform: translateY(0); }
+        
+        @media (min-width: 768px) {
+            .fade-up:not(.visible) { opacity: 0; transform: translateY(20px); }
+            .fade-up { transition: all 0.6s ease-out; }
+        }
+
+        /* =============================================
+           TABLET BREAKPOINT (768px+)
+           ============================================= */
+        @media (min-width: 768px) {
+            nav { padding: 16px 32px; }
+            .logo-mark { width: 40px; height: 40px; }
+            .logo-text { font-size: 1.4rem; }
+            .nav-right { gap: 20px; }
+            .nav-links { display: flex; gap: 20px; }
+            .nav-links a { font-size: 0.8rem; }
+            .nav-cta { padding: 10px 20px; font-size: 0.8rem; }
+            .lang-btn { padding: 6px 10px; font-size: 0.7rem; }
+            .hamburger { display: none; }
+            .mobile-menu { display: none !important; }
+
+            .hero { padding: 100px 32px 60px; }
+            .hero h1 { font-size: 2.5rem; }
+            .hero-subtitle { font-size: 1.05rem; max-width: 550px; }
+            .hero-cta { padding: 16px 28px; font-size: 0.9rem; }
+            .cloud-logos span { display: block; }
+            .cloud-logo { height: 22px; }
+
+            .section-title { font-size: 1.8rem; }
+            
+            .how-we-help { padding: 70px 32px; }
+            .help-grid { grid-template-columns: repeat(2, 1fr); max-width: 600px; gap: 16px; }
+            .help-card { padding: 24px 20px; }
+            .help-card h3 { font-size: 0.95rem; }
+            .help-card p { font-size: 0.8rem; }
+
+            .what-we-do { padding: 70px 32px; }
+            .services-simple { grid-template-columns: 1fr 1fr; max-width: 600px; gap: 16px; }
+            .service-box { padding: 24px 20px; }
+            .service-box h3 { font-size: 0.95rem; }
+            .service-box p { font-size: 0.8rem; }
+
+            .projects { padding: 70px 0; }
+            .projects .section-header { padding: 0 32px; }
+            .project-card { width: 300px; padding: 22px; }
+
+            .tech-stack { padding: 60px 32px; }
+            .tech-pill { padding: 8px 16px; font-size: 0.75rem; }
+
+            .process { padding: 70px 32px; }
+            .process-grid { grid-template-columns: repeat(4, 1fr); max-width: 800px; gap: 16px; }
+            .process-item { padding: 24px 16px; }
+            .process-num { width: 48px; height: 48px; font-size: 1.1rem; }
+            .process-item h3 { font-size: 0.9rem; }
+            .process-item p { font-size: 0.75rem; }
+
+            .cta { padding: 80px 32px; }
+            .cta h2 { font-size: 2rem; }
+            .cta-contacts { flex-direction: row; gap: 24px; }
+
+            footer { flex-direction: row; justify-content: space-between; padding: 20px 32px; }
+        }
+
+        /* =============================================
+           DESKTOP BREAKPOINT (1024px+)
+           ============================================= */
+        @media (min-width: 1024px) {
+            nav { padding: 20px 60px; }
+            .logo-mark { width: 44px; height: 44px; }
+            .logo-text { font-size: 1.5rem; }
+            .nav-right { gap: 32px; }
+            .nav-links { gap: 28px; }
+            .nav-links a { font-size: 0.85rem; }
+
+            .hero { padding: 120px 60px 80px; }
+            .hero h1 { font-size: 3.5rem; max-width: 800px; }
+            .hero-subtitle { font-size: 1.2rem; max-width: 600px; }
+            .hero-cta { padding: 18px 36px; font-size: 1rem; }
+            .cloud-logo { height: 26px; }
+            .cloud-logos { gap: 40px; }
+
+            .section-title { font-size: 2.2rem; }
+            .section-header { margin-bottom: 48px; }
+
+            .how-we-help { padding: 100px 80px; }
+            .help-grid { grid-template-columns: repeat(3, 1fr); max-width: 1100px; gap: 24px; }
+            .help-card { padding: 32px 28px; border-radius: 16px; }
+            .help-icon { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 16px; }
+            .help-icon svg { width: 28px; height: 28px; }
+            .help-card h3 { font-size: 1.05rem; margin-bottom: 10px; }
+            .help-card p { font-size: 0.85rem; }
+
+            .what-we-do { padding: 100px 80px; }
+            .services-simple { grid-template-columns: repeat(4, 1fr); max-width: 1100px; gap: 20px; }
+            .service-box { padding: 28px 24px; border-radius: 16px; }
+            .service-icon { width: 52px; height: 52px; }
+            .service-box h3 { font-size: 1rem; }
+            .service-box p { font-size: 0.82rem; }
+
+            .projects { padding: 100px 0; }
+            .projects .section-header { padding: 0 80px; margin-bottom: 40px; }
+            .projects-track { gap: 20px; padding-left: 80px; }
+            .project-card { width: 340px; padding: 28px; border-radius: 16px; }
+            .project-card h3 { font-size: 1.05rem; }
+            .project-card > p { font-size: 0.82rem; }
+
+            .tech-stack { padding: 80px; }
+            .tech-pills { gap: 10px; }
+            .tech-pill { padding: 10px 20px; font-size: 0.85rem; }
+
+            .process { padding: 100px 80px; }
+            .process-grid { max-width: 1000px; gap: 20px; }
+            .process-item { padding: 28px 20px; border-radius: 14px; }
+            .process-num { width: 52px; height: 52px; font-size: 1.2rem; }
+            .process-item h3 { font-size: 1rem; }
+            .process-item p { font-size: 0.85rem; }
+
+            .cta { padding: 120px 80px; }
+            .cta h2 { font-size: 2.8rem; }
+            .cta > p { font-size: 1rem; }
+            .cta-btn { padding: 18px 40px; font-size: 1rem; }
+            .cta-contacts { gap: 36px; margin-top: 40px; }
+            .cta-contact { font-size: 0.9rem; }
+
+            footer { padding: 24px 80px; }
+            footer p { font-size: 0.75rem; }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .fade-up { opacity: 1; transform: none; }
+            .projects-track { animation: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#" class="logo">
+            <svg class="logo-mark" viewBox="0 0 72 72" fill="none">
+                <path d="M8 18 Q20 18 28 28 Q36 38 36 54" stroke="#FF9900" stroke-width="3" stroke-linecap="round" fill="none"/>
+                <path d="M36 8 Q36 24 36 54" stroke="#0078D4" stroke-width="3" stroke-linecap="round" fill="none"/>
+                <path d="M64 18 Q52 18 44 28 Q36 38 36 54" stroke="#4285F4" stroke-width="3" stroke-linecap="round" fill="none"/>
+                <circle cx="36" cy="56" r="8" fill="#0a0a0a"/>
+                <circle cx="36" cy="56" r="4" fill="#ffffff"/>
+            </svg>
+            <span class="logo-text">lukzen</span>
+        </a>
+        <div class="nav-right">
+            <div class="nav-links">
+                <a href="#how-we-help" data-i18n="nav.help">How We Help</a>
+                <a href="#services" data-i18n="nav.services">Services</a>
+                <a href="#projects" data-i18n="nav.projects">Projects</a>
+                <a href="#contact" data-i18n="nav.contact">Contact</a>
+            </div>
+            <div class="lang-switcher">
+                <button class="lang-btn active" data-lang="en">EN</button>
+                <button class="lang-btn" data-lang="fr">FR</button>
+                <button class="lang-btn" data-lang="es">ES</button>
+            </div>
+            <a href="#contact" class="nav-cta" data-i18n="nav.cta">Let's Talk</a>
+            <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#how-we-help" data-i18n="nav.help">How We Help</a>
+        <a href="#services" data-i18n="nav.services">Services</a>
+        <a href="#projects" data-i18n="nav.projects">Projects</a>
+        <a href="#contact" data-i18n="nav.contact">Contact</a>
+    </div>
+
+    <section class="hero">
+        <p class="hero-label" data-i18n="hero.label">Cloud & Platform Architects</p>
+        <h1 data-i18n="hero.title">We architect, migrate, and manage your <span>cloud applications</span></h1>
+        <p class="hero-subtitle" data-i18n="hero.subtitle">25+ years designing microservices, serverless systems, and cloud migrations on AWS, GCP & Azure. From legacy modernization to Kubernetes at scale.</p>
+        <a href="#contact" class="hero-cta"><span data-i18n="hero.cta">Schedule a Free Call</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        
+        <div class="cloud-logos">
+            <span data-i18n="hero.certified">Certified on</span>
+            <svg class="cloud-logo" viewBox="0 0 80 30"><text x="0" y="22" font-family="system-ui" font-weight="bold" font-size="14" fill="#ff9900">AWS</text></svg>
+            <svg class="cloud-logo" viewBox="0 0 120 30"><text x="0" y="22" font-family="system-ui" font-weight="bold" font-size="14" fill="#4285f4">Google Cloud</text></svg>
+            <svg class="cloud-logo" viewBox="0 0 80 30"><text x="0" y="22" font-family="system-ui" font-weight="bold" font-size="14" fill="#0078d4">Azure</text></svg>
+        </div>
+    </section>
+
+    <section class="how-we-help" id="how-we-help">
+        <div class="section-header fade-up">
+            <p class="section-label" data-i18n="help.label">Why Work With Us</p>
+            <h2 class="section-title" data-i18n="help.title">How we help you succeed</h2>
+        </div>
+        <div class="help-grid">
+            <div class="help-card fade-up">
+                <div class="help-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <h3 data-i18n="help.speed.title">Ship Faster</h3>
+                <p data-i18n="help.speed.desc">Accelerate your delivery with proven cloud patterns, automated pipelines, and battle-tested architectures. Stop reinventing the wheel.</p>
+            </div>
+            <div class="help-card fade-up">
+                <div class="help-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3 data-i18n="help.security.title">Stay Secure</h3>
+                <p data-i18n="help.security.desc">Build security into every layer with DevSecOps practices, policy-as-code, secrets management, and compliance automation.</p>
+            </div>
+            <div class="help-card fade-up">
+                <div class="help-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                </div>
+                <h3 data-i18n="help.scale.title">Scale With Confidence</h3>
+                <p data-i18n="help.scale.desc">Design systems that grow with your business. Multi-region, multi-cloud, auto-scaling infrastructure that handles peak loads.</p>
+            </div>
+            <div class="help-card fade-up">
+                <div class="help-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h3 data-i18n="help.team.title">Empower Your Team</h3>
+                <p data-i18n="help.team.desc">We work alongside your engineers, not in isolation. Knowledge transfer and documentation ensure you own the solution long-term.</p>
+            </div>
+            <div class="help-card fade-up">
+                <div class="help-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <h3 data-i18n="help.cost.title">Optimize Costs</h3>
+                <p data-i18n="help.cost.desc">Right-size your infrastructure, eliminate waste, and implement FinOps practices. Pay only for what you need.</p>
+            </div>
+            <div class="help-card fade-up">
+                <div class="help-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                </div>
+                <h3 data-i18n="help.observe.title">Full Observability</h3>
+                <p data-i18n="help.observe.desc">See everything with unified logging, metrics, tracing, and alerting. Detect issues before your customers do.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="what-we-do" id="services">
+        <div class="section-header fade-up">
+            <p class="section-label" data-i18n="services.label">What We Do</p>
+            <h2 class="section-title" data-i18n="services.title">Four ways we help</h2>
+        </div>
+        <div class="services-simple">
+            <div class="service-box fade-up">
+                <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+                <h3 data-i18n="services.arch.title">Application Architecture</h3>
+                <p data-i18n="services.arch.desc">Design microservices, event-driven systems, and APIs using DDD, CQRS, and cloud-native patterns.</p>
+            </div>
+            <div class="service-box fade-up">
+                <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+                <h3 data-i18n="services.serverless.title">Serverless & Event-Driven</h3>
+                <p data-i18n="services.serverless.desc">Build with Lambda, Cloud Functions, API Gateway, EventBridge, Pub/Sub, and IoT Core.</p>
+            </div>
+            <div class="service-box fade-up">
+                <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+                <h3 data-i18n="services.migration.title">Cloud Migration</h3>
+                <p data-i18n="services.migration.desc">Migrate legacy apps to cloud using Strangler pattern, landing zones, and hybrid integration.</p>
+            </div>
+            <div class="service-box fade-up">
+                <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4M4.22 4.22l2.83 2.83m9.9 9.9l2.83 2.83M1 12h4m14 0h4"/></svg></div>
+                <h3 data-i18n="services.k8s.title">Kubernetes & Platform</h3>
+                <p data-i18n="services.k8s.desc">Deploy and manage GKE, EKS, AKS clusters with GitOps, Istio, and developer portals.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="projects" id="projects">
+        <div class="section-header fade-up">
+            <p class="section-label" data-i18n="projects.label">Real Projects</p>
+            <h2 class="section-title" data-i18n="projects.title">Work we've delivered</h2>
+        </div>
+        <div class="projects-track">
+            <div class="project-card"><p class="project-industry" data-i18n="projects.p1.industry">Insurance</p><h3 data-i18n="projects.p1.title">AWS Cloud Foundation & Migration</h3><p data-i18n="projects.p1.desc">First AWS migration project: landing zones, multi-account governance, SCPs, on-prem to cloud network integration, EKS clusters with GitOps.</p><div class="project-tech"><span>AWS</span><span>Terraform</span><span>EKS</span><span>Landing Zones</span></div></div>
+            <div class="project-card"><p class="project-industry" data-i18n="projects.p2.industry">Insurance</p><h3 data-i18n="projects.p2.title">Kubernetes Infrastructure & GitOps</h3><p data-i18n="projects.p2.desc">EKS cluster management, Flux CD GitOps implementation, CSI drivers, secrets management, multi-environment deployments.</p><div class="project-tech"><span>EKS</span><span>Flux CD</span><span>Terraform</span><span>Bash</span></div></div>
+            <div class="project-card"><p class="project-industry" data-i18n="projects.p3.industry">Enterprise IT</p><h3 data-i18n="projects.p3.title">Multi-Cloud Kubernetes Platform</h3><p data-i18n="projects.p3.desc">60+ GKE, EKS, AKS clusters across AWS, GCP, Azure. Internal developer platform with ArgoCD, Argo Workflows, and Backstage.</p><div class="project-tech"><span>Kubernetes</span><span>ArgoCD</span><span>Crossplane</span><span>Backstage</span></div></div>
+            <div class="project-card"><p class="project-industry" data-i18n="projects.p4.industry">Travel</p><h3 data-i18n="projects.p4.title">Legacy to Serverless Migration</h3><p data-i18n="projects.p4.desc">Migrated legacy apps to AWS serverless using Strangler pattern, DDD, Saga orchestration, CQRS. Lambda, API Gateway, EventBridge, RDS.</p><div class="project-tech"><span>Lambda</span><span>API Gateway</span><span>EventBridge</span><span>DDD</span></div></div>
+            <div class="project-card"><p class="project-industry" data-i18n="projects.p5.industry">Telecom</p><h3 data-i18n="projects.p5.title">GCP Migration & API Platform</h3><p data-i18n="projects.p5.desc">Migrated internal systems to GCP. Cloud Run, Pub/Sub, GKE deployments. Apigee API proxies for internal/external integration.</p><div class="project-tech"><span>Cloud Run</span><span>Apigee</span><span>Pub/Sub</span><span>GKE</span></div></div>
+            <div class="project-card"><p class="project-industry" data-i18n="projects.p6.industry">Automotive</p><h3 data-i18n="projects.p6.title">IoT Serverless Platform</h3><p data-i18n="projects.p6.desc">Event-driven IoT system for vehicle fleet management: reservation, tracking, real-time data. AWS IoT Core, Kinesis, Lambda, DynamoDB.</p><div class="project-tech"><span>AWS IoT</span><span>Lambda</span><span>Kinesis</span><span>DynamoDB</span></div></div>
+            <div class="project-card"><p class="project-industry" data-i18n="projects.p7.industry">Telecom</p><h3 data-i18n="projects.p7.title">Serverless Data Pipelines</h3><p data-i18n="projects.p7.desc">GCP data pipelines for financial/HR document processing. Cloud Functions, Workflows, Dataflow, BigQuery integration with Workday ERP.</p><div class="project-tech"><span>Cloud Functions</span><span>Dataflow</span><span>BigQuery</span><span>Workflows</span></div></div>
+            <div class="project-card"><p class="project-industry" data-i18n="projects.p8.industry">Rail & Transportation</p><h3 data-i18n="projects.p8.title">Mobile App Integration Architecture</h3><p data-i18n="projects.p8.desc">Web app on mBaaS with Apigee API layer, Spring Boot microservices, Postgres. Led integration across UI, backend, and DevSecOps teams.</p><div class="project-tech"><span>Apigee</span><span>Spring Boot</span><span>Postgres</span><span>mBaaS</span></div></div>
+            <!-- Duplicates -->
+            <div class="project-card"><p class="project-industry">Insurance</p><h3>AWS Cloud Foundation & Migration</h3><p>First AWS migration project: landing zones, multi-account governance, SCPs, on-prem to cloud network integration, EKS clusters with GitOps.</p><div class="project-tech"><span>AWS</span><span>Terraform</span><span>EKS</span><span>Landing Zones</span></div></div>
+            <div class="project-card"><p class="project-industry">Insurance</p><h3>Kubernetes Infrastructure & GitOps</h3><p>EKS cluster management, Flux CD GitOps implementation, CSI drivers, secrets management, multi-environment deployments.</p><div class="project-tech"><span>EKS</span><span>Flux CD</span><span>Terraform</span><span>Bash</span></div></div>
+            <div class="project-card"><p class="project-industry">Enterprise IT</p><h3>Multi-Cloud Kubernetes Platform</h3><p>60+ GKE, EKS, AKS clusters across AWS, GCP, Azure. Internal developer platform with ArgoCD, Argo Workflows, and Backstage.</p><div class="project-tech"><span>Kubernetes</span><span>ArgoCD</span><span>Crossplane</span><span>Backstage</span></div></div>
+            <div class="project-card"><p class="project-industry">Travel</p><h3>Legacy to Serverless Migration</h3><p>Migrated legacy apps to AWS serverless using Strangler pattern, DDD, Saga orchestration, CQRS. Lambda, API Gateway, EventBridge, RDS.</p><div class="project-tech"><span>Lambda</span><span>API Gateway</span><span>EventBridge</span><span>DDD</span></div></div>
+            <div class="project-card"><p class="project-industry">Telecom</p><h3>GCP Migration & API Platform</h3><p>Migrated internal systems to GCP. Cloud Run, Pub/Sub, GKE deployments. Apigee API proxies for internal/external integration.</p><div class="project-tech"><span>Cloud Run</span><span>Apigee</span><span>Pub/Sub</span><span>GKE</span></div></div>
+            <div class="project-card"><p class="project-industry">Automotive</p><h3>IoT Serverless Platform</h3><p>Event-driven IoT system for vehicle fleet management: reservation, tracking, real-time data. AWS IoT Core, Kinesis, Lambda, DynamoDB.</p><div class="project-tech"><span>AWS IoT</span><span>Lambda</span><span>Kinesis</span><span>DynamoDB</span></div></div>
+            <div class="project-card"><p class="project-industry">Telecom</p><h3>Serverless Data Pipelines</h3><p>GCP data pipelines for financial/HR document processing. Cloud Functions, Workflows, Dataflow, BigQuery integration with Workday ERP.</p><div class="project-tech"><span>Cloud Functions</span><span>Dataflow</span><span>BigQuery</span><span>Workflows</span></div></div>
+            <div class="project-card"><p class="project-industry">Rail & Transportation</p><h3>Mobile App Integration Architecture</h3><p>Web app on mBaaS with Apigee API layer, Spring Boot microservices, Postgres. Led integration across UI, backend, and DevSecOps teams.</p><div class="project-tech"><span>Apigee</span><span>Spring Boot</span><span>Postgres</span><span>mBaaS</span></div></div>
+        </div>
+    </section>
+
+    <section class="tech-stack">
+        <div class="section-header fade-up">
+            <p class="section-label" data-i18n="tech.label">Tech Stack</p>
+            <h2 class="section-title" data-i18n="tech.title">Tools we use daily</h2>
+        </div>
+        <div class="tech-pills fade-up">
+            <span class="tech-pill highlight">Kubernetes</span><span class="tech-pill highlight">Terraform</span><span class="tech-pill highlight">ArgoCD</span><span class="tech-pill">AWS Lambda</span><span class="tech-pill">Cloud Functions</span><span class="tech-pill">API Gateway</span><span class="tech-pill">EventBridge</span><span class="tech-pill">Pub/Sub</span><span class="tech-pill">Apigee</span><span class="tech-pill">Cloud Run</span><span class="tech-pill">GKE</span><span class="tech-pill">EKS</span><span class="tech-pill">Istio</span><span class="tech-pill">Crossplane</span><span class="tech-pill">Vault</span><span class="tech-pill">Spring Boot</span><span class="tech-pill">Python</span>
+        </div>
+    </section>
+
+    <section class="process">
+        <div class="section-header fade-up">
+            <p class="section-label" data-i18n="process.label">How It Works</p>
+            <h2 class="section-title" data-i18n="process.title">Simple process</h2>
+        </div>
+        <div class="process-grid">
+            <div class="process-item fade-up"><div class="process-num">1</div><h3 data-i18n="process.step1.title">Call</h3><p data-i18n="process.step1.desc">30-min chat to understand your architecture challenges.</p></div>
+            <div class="process-item fade-up"><div class="process-num">2</div><h3 data-i18n="process.step2.title">Plan</h3><p data-i18n="process.step2.desc">We design the solution and scope the work.</p></div>
+            <div class="process-item fade-up"><div class="process-num">3</div><h3 data-i18n="process.step3.title">Build</h3><p data-i18n="process.step3.desc">We implement alongside your team.</p></div>
+            <div class="process-item fade-up"><div class="process-num">4</div><h3 data-i18n="process.step4.title">Handoff</h3><p data-i18n="process.step4.desc">Documentation and training so you own it.</p></div>
+        </div>
+    </section>
+
+    <section class="cta" id="contact">
+        <h2 class="fade-up" data-i18n="cta.title">Ready to talk?</h2>
+        <p class="fade-up" data-i18n="cta.subtitle">Book a free 30-minute call. No pitch, just answers.</p>
+        <a href="/cdn-cgi/l/email-protection#12627a7b7e527e677968777c3c717d7f" class="cta-btn fade-up" data-i18n="cta.button">Get in Touch</a>
+        <div class="cta-contacts fade-up">
+            <a href="/cdn-cgi/l/email-protection#ef9f878683af839a84958a81c18c8082" class="cta-contact"><span class="__cf_email__" data-cfemail="b1c1d9d8ddf1ddc4dacbd4df9fd2dedc">[email&#160;protected]</span></a>
+            <a href="tel:+15147055593" class="cta-contact">+1 514 705 5593</a>
+            <a href="https://linkedin.com/in/phlukman" class="cta-contact" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+    </section>
+
+    <footer>
+        <a href="#" class="logo">
+            <svg class="logo-mark" viewBox="0 0 72 72" fill="none">
+                <path d="M8 18 Q20 18 28 28 Q36 38 36 54" stroke="#FF9900" stroke-width="3" stroke-linecap="round" fill="none"/>
+                <path d="M36 8 Q36 24 36 54" stroke="#0078D4" stroke-width="3" stroke-linecap="round" fill="none"/>
+                <path d="M64 18 Q52 18 44 28 Q36 38 36 54" stroke="#4285F4" stroke-width="3" stroke-linecap="round" fill="none"/>
+                <circle cx="36" cy="56" r="8" fill="#ffffff"/>
+                <circle cx="36" cy="56" r="4" fill="#0a0a0a"/>
+            </svg>
+            <span class="logo-text">lukzen</span>
+        </a>
+        <p data-i18n="footer.copyright">© 2024 LukZen Technologies Inc. Montreal, Canada</p>
+    </footer>
+
+    <script>
+        const translations = {
+            en: {
+                "nav.services": "Services", "nav.projects": "Projects", "nav.contact": "Contact", "nav.cta": "Let's Talk", "nav.help": "How We Help",
+                "hero.label": "Cloud & Platform Architects", "hero.title": "We architect, migrate, and manage your <span>cloud applications</span>",
+                "hero.subtitle": "25+ years designing microservices, serverless systems, and cloud migrations on AWS, GCP & Azure. From legacy modernization to Kubernetes at scale.",
+                "hero.cta": "Schedule a Free Call", "hero.certified": "Certified on",
+                "help.label": "Why Work With Us", "help.title": "How we help you succeed",
+                "help.speed.title": "Ship Faster", "help.speed.desc": "Accelerate your delivery with proven cloud patterns, automated pipelines, and battle-tested architectures. Stop reinventing the wheel.",
+                "help.security.title": "Stay Secure", "help.security.desc": "Build security into every layer with DevSecOps practices, policy-as-code, secrets management, and compliance automation.",
+                "help.scale.title": "Scale With Confidence", "help.scale.desc": "Design systems that grow with your business. Multi-region, multi-cloud, auto-scaling infrastructure that handles peak loads.",
+                "help.team.title": "Empower Your Team", "help.team.desc": "We work alongside your engineers, not in isolation. Knowledge transfer and documentation ensure you own the solution long-term.",
+                "help.cost.title": "Optimize Costs", "help.cost.desc": "Right-size your infrastructure, eliminate waste, and implement FinOps practices. Pay only for what you need.",
+                "help.observe.title": "Full Observability", "help.observe.desc": "See everything with unified logging, metrics, tracing, and alerting. Detect issues before your customers do.",
+                "services.label": "What We Do", "services.title": "Four ways we help",
+                "services.arch.title": "Application Architecture", "services.arch.desc": "Design microservices, event-driven systems, and APIs using DDD, CQRS, and cloud-native patterns.",
+                "services.serverless.title": "Serverless & Event-Driven", "services.serverless.desc": "Build with Lambda, Cloud Functions, API Gateway, EventBridge, Pub/Sub, and IoT Core.",
+                "services.migration.title": "Cloud Migration", "services.migration.desc": "Migrate legacy apps to cloud using Strangler pattern, landing zones, and hybrid integration.",
+                "services.k8s.title": "Kubernetes & Platform", "services.k8s.desc": "Deploy and manage GKE, EKS, AKS clusters with GitOps, Istio, and developer portals.",
+                "projects.label": "Real Projects", "projects.title": "Work we've delivered",
+                "projects.p1.industry": "Insurance", "projects.p1.title": "AWS Cloud Foundation & Migration", "projects.p1.desc": "First AWS migration project: landing zones, multi-account governance, SCPs, on-prem to cloud network integration, EKS clusters with GitOps.",
+                "projects.p2.industry": "Insurance", "projects.p2.title": "Kubernetes Infrastructure & GitOps", "projects.p2.desc": "EKS cluster management, Flux CD GitOps implementation, CSI drivers, secrets management, multi-environment deployments.",
+                "projects.p3.industry": "Enterprise IT", "projects.p3.title": "Multi-Cloud Kubernetes Platform", "projects.p3.desc": "60+ GKE, EKS, AKS clusters across AWS, GCP, Azure. Internal developer platform with ArgoCD, Argo Workflows, and Backstage.",
+                "projects.p4.industry": "Travel", "projects.p4.title": "Legacy to Serverless Migration", "projects.p4.desc": "Migrated legacy apps to AWS serverless using Strangler pattern, DDD, Saga orchestration, CQRS. Lambda, API Gateway, EventBridge, RDS.",
+                "projects.p5.industry": "Telecom", "projects.p5.title": "GCP Migration & API Platform", "projects.p5.desc": "Migrated internal systems to GCP. Cloud Run, Pub/Sub, GKE deployments. Apigee API proxies for internal/external integration.",
+                "projects.p6.industry": "Automotive", "projects.p6.title": "IoT Serverless Platform", "projects.p6.desc": "Event-driven IoT system for vehicle fleet management: reservation, tracking, real-time data. AWS IoT Core, Kinesis, Lambda, DynamoDB.",
+                "projects.p7.industry": "Telecom", "projects.p7.title": "Serverless Data Pipelines", "projects.p7.desc": "GCP data pipelines for financial/HR document processing. Cloud Functions, Workflows, Dataflow, BigQuery integration with Workday ERP.",
+                "projects.p8.industry": "Rail & Transportation", "projects.p8.title": "Mobile App Integration Architecture", "projects.p8.desc": "Web app on mBaaS with Apigee API layer, Spring Boot microservices, Postgres. Led integration across UI, backend, and DevSecOps teams.",
+                "tech.label": "Tech Stack", "tech.title": "Tools we use daily",
+                "process.label": "How It Works", "process.title": "Simple process",
+                "process.step1.title": "Call", "process.step1.desc": "30-min chat to understand your architecture challenges.",
+                "process.step2.title": "Plan", "process.step2.desc": "We design the solution and scope the work.",
+                "process.step3.title": "Build", "process.step3.desc": "We implement alongside your team.",
+                "process.step4.title": "Handoff", "process.step4.desc": "Documentation and training so you own it.",
+                "cta.title": "Ready to talk?", "cta.subtitle": "Book a free 30-minute call. No pitch, just answers.", "cta.button": "Get in Touch",
+                "footer.copyright": "© 2024 LukZen Technologies Inc. Montreal, Canada"
+            },
+            fr: {
+                "nav.services": "Services", "nav.projects": "Projets", "nav.contact": "Contact", "nav.cta": "Discutons", "nav.help": "Notre Aide",
+                "hero.label": "Architectes Cloud & Plateformes", "hero.title": "Nous concevons, migrons et gérons vos <span>applications cloud</span>",
+                "hero.subtitle": "Plus de 25 ans d'expérience en conception de microservices, systèmes serverless et migrations cloud sur AWS, GCP et Azure.",
+                "hero.cta": "Planifier un appel", "hero.certified": "Certifiés sur",
+                "help.label": "Pourquoi Nous Choisir", "help.title": "Comment nous vous aidons à réussir",
+                "help.speed.title": "Livrez Plus Vite", "help.speed.desc": "Accélérez vos livraisons avec des patterns cloud éprouvés, des pipelines automatisés et des architectures testées en production.",
+                "help.security.title": "Restez Sécurisé", "help.security.desc": "Intégrez la sécurité à chaque niveau avec les pratiques DevSecOps, policy-as-code, gestion des secrets et automatisation de la conformité.",
+                "help.scale.title": "Scalez en Confiance", "help.scale.desc": "Concevez des systèmes qui grandissent avec votre entreprise. Infrastructure multi-région, multi-cloud, auto-scaling.",
+                "help.team.title": "Autonomisez Votre Équipe", "help.team.desc": "Nous travaillons aux côtés de vos ingénieurs. Transfert de connaissances et documentation pour que vous maîtrisiez la solution.",
+                "help.cost.title": "Optimisez les Coûts", "help.cost.desc": "Dimensionnez correctement votre infrastructure, éliminez le gaspillage et implémentez les pratiques FinOps.",
+                "help.observe.title": "Observabilité Complète", "help.observe.desc": "Voyez tout avec logs, métriques, tracing et alerting unifiés. Détectez les problèmes avant vos clients.",
+                "services.label": "Nos Services", "services.title": "Quatre façons de vous aider",
+                "services.arch.title": "Architecture Applicative", "services.arch.desc": "Conception de microservices, systèmes événementiels et APIs avec DDD, CQRS et patterns cloud-native.",
+                "services.serverless.title": "Serverless & Événementiel", "services.serverless.desc": "Développement avec Lambda, Cloud Functions, API Gateway, EventBridge, Pub/Sub et IoT Core.",
+                "services.migration.title": "Migration Cloud", "services.migration.desc": "Migration d'applications legacy vers le cloud avec le pattern Strangler, landing zones et intégration hybride.",
+                "services.k8s.title": "Kubernetes & Plateforme", "services.k8s.desc": "Déploiement et gestion de clusters GKE, EKS, AKS avec GitOps, Istio et portails développeurs.",
+                "projects.label": "Projets Réels", "projects.title": "Réalisations livrées",
+                "projects.p1.industry": "Assurance", "projects.p1.title": "Fondation AWS & Migration Cloud", "projects.p1.desc": "Premier projet de migration AWS : landing zones, gouvernance multi-comptes, SCPs, intégration réseau, clusters EKS avec GitOps.",
+                "projects.p2.industry": "Assurance", "projects.p2.title": "Infrastructure Kubernetes & GitOps", "projects.p2.desc": "Gestion de clusters EKS, implémentation GitOps avec Flux CD, drivers CSI, gestion des secrets.",
+                "projects.p3.industry": "TI Entreprise", "projects.p3.title": "Plateforme Kubernetes Multi-Cloud", "projects.p3.desc": "Plus de 60 clusters GKE, EKS, AKS sur AWS, GCP, Azure. Plateforme développeur avec ArgoCD et Backstage.",
+                "projects.p4.industry": "Voyage", "projects.p4.title": "Migration Legacy vers Serverless", "projects.p4.desc": "Migration vers AWS serverless avec pattern Strangler, DDD, orchestration Saga, CQRS.",
+                "projects.p5.industry": "Télécom", "projects.p5.title": "Migration GCP & Plateforme API", "projects.p5.desc": "Migration vers GCP. Déploiements Cloud Run, Pub/Sub, GKE. Proxies API Apigee.",
+                "projects.p6.industry": "Automobile", "projects.p6.title": "Plateforme IoT Serverless", "projects.p6.desc": "Système IoT événementiel pour gestion de flotte. AWS IoT Core, Kinesis, Lambda, DynamoDB.",
+                "projects.p7.industry": "Télécom", "projects.p7.title": "Pipelines de Données Serverless", "projects.p7.desc": "Pipelines GCP pour documents financiers/RH. Cloud Functions, Workflows, Dataflow, BigQuery.",
+                "projects.p8.industry": "Rail & Transport", "projects.p8.title": "Architecture d'Intégration Mobile", "projects.p8.desc": "Application web sur mBaaS avec API Apigee, microservices Spring Boot, Postgres.",
+                "tech.label": "Stack Technique", "tech.title": "Outils utilisés quotidiennement",
+                "process.label": "Notre Méthode", "process.title": "Processus simple",
+                "process.step1.title": "Appel", "process.step1.desc": "Discussion de 30 min pour comprendre vos défis.",
+                "process.step2.title": "Plan", "process.step2.desc": "Nous concevons la solution et définissons le périmètre.",
+                "process.step3.title": "Build", "process.step3.desc": "Nous implémentons aux côtés de votre équipe.",
+                "process.step4.title": "Transfert", "process.step4.desc": "Documentation et formation pour votre autonomie.",
+                "cta.title": "Prêt à discuter ?", "cta.subtitle": "Réservez un appel gratuit de 30 minutes.", "cta.button": "Nous Contacter",
+                "footer.copyright": "© 2024 LukZen Technologies Inc. Montréal, Canada"
+            },
+            es: {
+                "nav.services": "Servicios", "nav.projects": "Proyectos", "nav.contact": "Contacto", "nav.cta": "Hablemos", "nav.help": "Cómo Ayudamos",
+                "hero.label": "Arquitectos Cloud & Plataformas", "hero.title": "Diseñamos, migramos y gestionamos sus <span>aplicaciones cloud</span>",
+                "hero.subtitle": "Más de 25 años diseñando microservicios, sistemas serverless y migraciones cloud en AWS, GCP y Azure.",
+                "hero.cta": "Agendar Llamada", "hero.certified": "Certificados en",
+                "help.label": "Por Qué Elegirnos", "help.title": "Cómo le ayudamos a triunfar",
+                "help.speed.title": "Entregue Más Rápido", "help.speed.desc": "Acelere sus entregas con patrones cloud probados, pipelines automatizados y arquitecturas de batalla.",
+                "help.security.title": "Manténgase Seguro", "help.security.desc": "Construya seguridad en cada capa con prácticas DevSecOps, policy-as-code, gestión de secretos y automatización de cumplimiento.",
+                "help.scale.title": "Escale con Confianza", "help.scale.desc": "Diseñe sistemas que crecen con su negocio. Infraestructura multi-región, multi-cloud, auto-scaling.",
+                "help.team.title": "Empodere su Equipo", "help.team.desc": "Trabajamos junto a sus ingenieros. Transferencia de conocimiento y documentación para que dominen la solución.",
+                "help.cost.title": "Optimice Costos", "help.cost.desc": "Dimensione correctamente su infraestructura, elimine desperdicios e implemente prácticas FinOps.",
+                "help.observe.title": "Observabilidad Total", "help.observe.desc": "Vea todo con logs, métricas, tracing y alertas unificadas. Detecte problemas antes que sus clientes.",
+                "services.label": "Nuestros Servicios", "services.title": "Cuatro formas de ayudarle",
+                "services.arch.title": "Arquitectura de Aplicaciones", "services.arch.desc": "Diseño de microservicios, sistemas event-driven y APIs usando DDD, CQRS y patrones cloud-native.",
+                "services.serverless.title": "Serverless & Event-Driven", "services.serverless.desc": "Desarrollo con Lambda, Cloud Functions, API Gateway, EventBridge, Pub/Sub e IoT Core.",
+                "services.migration.title": "Migración Cloud", "services.migration.desc": "Migración de apps legacy al cloud usando patrón Strangler, landing zones e integración híbrida.",
+                "services.k8s.title": "Kubernetes & Plataforma", "services.k8s.desc": "Despliegue y gestión de clusters GKE, EKS, AKS con GitOps, Istio y portales de desarrollador.",
+                "projects.label": "Proyectos Reales", "projects.title": "Trabajo entregado",
+                "projects.p1.industry": "Seguros", "projects.p1.title": "Fundación AWS & Migración Cloud", "projects.p1.desc": "Primer proyecto AWS: landing zones, gobernanza multi-cuenta, SCPs, integración de red, clusters EKS con GitOps.",
+                "projects.p2.industry": "Seguros", "projects.p2.title": "Infraestructura Kubernetes & GitOps", "projects.p2.desc": "Gestión de clusters EKS, implementación GitOps con Flux CD, drivers CSI, gestión de secretos.",
+                "projects.p3.industry": "TI Empresarial", "projects.p3.title": "Plataforma Kubernetes Multi-Cloud", "projects.p3.desc": "Más de 60 clusters GKE, EKS, AKS en AWS, GCP, Azure. Plataforma con ArgoCD y Backstage.",
+                "projects.p4.industry": "Viajes", "projects.p4.title": "Migración Legacy a Serverless", "projects.p4.desc": "Migración a AWS serverless usando patrón Strangler, DDD, orquestación Saga, CQRS.",
+                "projects.p5.industry": "Telecom", "projects.p5.title": "Migración GCP & Plataforma API", "projects.p5.desc": "Migración a GCP. Despliegues Cloud Run, Pub/Sub, GKE. Proxies API Apigee.",
+                "projects.p6.industry": "Automotriz", "projects.p6.title": "Plataforma IoT Serverless", "projects.p6.desc": "Sistema IoT event-driven para gestión de flotas. AWS IoT Core, Kinesis, Lambda, DynamoDB.",
+                "projects.p7.industry": "Telecom", "projects.p7.title": "Pipelines de Datos Serverless", "projects.p7.desc": "Pipelines GCP para documentos financieros/RRHH. Cloud Functions, Workflows, Dataflow, BigQuery.",
+                "projects.p8.industry": "Ferrocarril & Transporte", "projects.p8.title": "Arquitectura de Integración Móvil", "projects.p8.desc": "App web en mBaaS con API Apigee, microservicios Spring Boot, Postgres.",
+                "tech.label": "Stack Tecnológico", "tech.title": "Herramientas que usamos",
+                "process.label": "Cómo Funciona", "process.title": "Proceso simple",
+                "process.step1.title": "Llamada", "process.step1.desc": "Charla de 30 min para entender sus desafíos.",
+                "process.step2.title": "Plan", "process.step2.desc": "Diseñamos la solución y definimos el alcance.",
+                "process.step3.title": "Build", "process.step3.desc": "Implementamos junto a su equipo.",
+                "process.step4.title": "Entrega", "process.step4.desc": "Documentación y capacitación para su autonomía.",
+                "cta.title": "¿Listo para hablar?", "cta.subtitle": "Reserve una llamada gratuita de 30 minutos.", "cta.button": "Contáctenos",
+                "footer.copyright": "© 2024 LukZen Technologies Inc. Montreal, Canadá"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function applyTranslations(lang) {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) el.innerHTML = translations[lang][key];
+            });
+            document.documentElement.lang = lang;
+        }
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentLang = btn.getAttribute('data-lang');
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                applyTranslations(currentLang);
+                localStorage.setItem('lukzen-lang', currentLang);
+            });
+        });
+
+        const savedLang = localStorage.getItem('lukzen-lang');
+        if (savedLang && translations[savedLang]) {
+            currentLang = savedLang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-lang') === savedLang));
+            applyTranslations(savedLang);
+        }
+
+        // Fade-up animations
+        const fadeObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.fade-up').forEach(el => fadeObserver.observe(el));
+
+        // Hamburger menu toggle - iOS compatible
+        const hamburger = document.querySelector('.hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        function toggleMenu(e) {
+            e.preventDefault();
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            hamburger.setAttribute('aria-expanded', mobileMenu.classList.contains('active'));
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+        
+        hamburger.addEventListener('click', toggleMenu);
+        hamburger.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            toggleMenu(e);
+        }, { passive: false });
+
+        // Close mobile menu when clicking a link
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            function closeMenu(e) {
+                hamburger.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                hamburger.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+            }
+            link.addEventListener('click', closeMenu);
+            link.addEventListener('touchend', closeMenu);
+        });
+
+        // Apply translations to mobile menu too
+        function applyTranslationsToMobileMenu(lang) {
+            mobileMenu.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+        }
+
+        // Update original applyTranslations to include mobile menu
+        const originalApply = applyTranslations;
+        applyTranslations = function(lang) {
+            originalApply(lang);
+            applyTranslationsToMobileMenu(lang);
+        };
+        
+        // Apply saved language to mobile menu on load
+        if (savedLang) applyTranslationsToMobileMenu(savedLang);
+    </script>
+</body>
+</html>
